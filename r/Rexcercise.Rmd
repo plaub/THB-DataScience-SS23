@@ -1,0 +1,95 @@
+---
+title: "R_excercise"
+output: html_document
+date: "2023-05-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(readr)
+options(repr.plot.width = 6, repr.plot.height = 6)
+```
+
+## Read iris data
+
+```{r}
+Iris <- read.csv('./Iris.csv')
+class(Iris)
+```
+
+## Let's look at the iris data \# we do this by looking at the first five columns
+
+```{r}
+head(Iris)
+```
+
+# Scatter plot with x-axis: Sepal.Length and y-axis: Sepal.Width, and the species should be shown in different colors
+
+```{r}
+ggplot(Iris, aes(x = SepalLengthCm, y = SepalWidthCm, color = Species)) +
+  geom_point() +
+  labs(x = "Sepal Length in cm ", y = "Sepal Width in cm")
+```
+
+## Add regression line for the previous plot with the whole dataset (regardless of the species)
+
+The argument aes(group = 1) in the geom_smooth() function is used to indicate that all data points in the dataset should be considered as a single group when performing the regression.
+
+### Linear model
+
+```{r}
+ggplot(Iris, aes(x = SepalLengthCm, y = SepalWidthCm)) +
+  geom_point(aes(color = Species, group = Species)) +
+  geom_smooth(method = lm, se = FALSE, aes(group = 1)) +
+  labs(x = "Sepal Length in cm", y = "Sepal Width in cm")
+```
+
+### Method auto
+
+```{r}
+ggplot(Iris, aes(x = SepalLengthCm, y = SepalWidthCm)) +
+  geom_point(aes(color = Species, group = Species)) +
+  geom_smooth(method = 'auto', se = FALSE, aes(group = 1)) +
+  labs(x = "Sepal Length in cm", y = "Sepal Width in cm")
+```
+
+## Pearson correlation
+
+```{r}
+cor(iris$Sepal.Length, iris$Sepal.Width)
+```
+
+Since the correlation coefficient is negative and close to zero, it indicates a weak, negative correlation between sepal length and sepal width in the data set.
+
+## Make the boxplot for Petal.Width with 3 species separately in the x-axis in different colors
+
+```{r}
+ggplot(Iris, aes(x = Species, y = PetalWidthCm, fill = Species)) +
+  geom_boxplot() +
+  labs(x = "Species", y = "Petal Width in cm", title = "Boxplot of Petal Width by Species") +
+  scale_fill_manual(values = c("#F8766D", "#00BA38", "#619CFF"))
+```
+
+## Make the histogram for Petal.Width with 3 species separately in x-axis in different colors
+
+```{r}
+ggplot(iris, aes(x = Petal.Width, fill = Species)) +
+  geom_histogram(position = "identity", bins = 30, alpha = 0.7) +
+  labs(x = "Petal Width in cm", y = "Count", title = "Histogram of Petal Width by Species") + 
+  scale_fill_manual(values = c("#F8766D", "#00BA38", "#619CFF"))
+```
+
+## Run the t-test of Petal.Width between setosa and virginica, and give the conclusion if the width is a statistically significant difference between 2 species
+
+The output of the t.test() function will provide information about the t-statistic, degrees of freedom, the p-value, and whether the difference in means is statistically significant.
+
+```{r}
+setosa_width <- iris$Petal.Width[iris$Species == "setosa"]
+virginica_width <- iris$Petal.Width[iris$Species == "virginica"]
+t_test_result <- t.test(setosa_width, virginica_width)
+t_test_result
+```
+
+The Welch Two Sample t-test revealed a highly significant difference (t = -42.786, df = 63.123, p \< 2.2e-16) in the mean Petal.Width between the Setosa and Virginica species. These findings provide strong evidence to reject the null hypothesis, indicating a statistically significant distinction in the Petal.Width between the two species. The Setosa species exhibited a mean Petal.Width of 0.246, while the Virginica species had a mean Petal.Width of 2.026. This result highlights the significant variation in Petal.Width, emphasizing its importance as a distinguishing feature between the Setosa and Virginica species.
